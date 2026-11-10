@@ -38,3 +38,24 @@ test('sorting by price and mileage is deterministic', () => {
   assert.deepEqual(ids({ sort: 'price-desc' }), ['a01-strada', 'a02-grand-tourer', 'a03-spider']);
   assert.deepEqual(ids({ sort: 'mileage' }), ['a01-strada', 'a02-grand-tourer', 'a03-spider']);
 });
+
+test('default ordering is newest first and preserves the input array', () => {
+  const input = [...demoVehicles].reverse();
+  const snapshot = [...input];
+  const result = filterVehicles(input, {});
+  assert.deepEqual(result.map((vehicle) => vehicle.id), ['a01-strada', 'a02-grand-tourer', 'a03-spider']);
+  assert.deepEqual(input, snapshot);
+  assert.notStrictEqual(result, input);
+});
+
+test('categorical filters select exact matching vehicles', () => {
+  assert.deepEqual(ids({ body: 'Convertible' }), ['a03-spider']);
+  assert.deepEqual(ids({ fuel: 'Petrol', drive: 'AWD' }), ['a02-grand-tourer']);
+  assert.deepEqual(ids({ status: 'Reserved' }), ['a03-spider']);
+  assert.deepEqual(ids({ brand: 'Nonexistent' }), []);
+});
+
+test('empty inventory and unmatched searches return empty results', () => {
+  assert.deepEqual(filterVehicles([], { search: 'atelier' }), []);
+  assert.deepEqual(ids({ search: 'no matching vehicle' }), []);
+});
