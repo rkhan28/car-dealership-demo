@@ -59,3 +59,19 @@ test('empty inventory and unmatched searches return empty results', () => {
   assert.deepEqual(filterVehicles([], { search: 'atelier' }), []);
   assert.deepEqual(ids({ search: 'no matching vehicle' }), []);
 });
+
+test('price range endpoints are inclusive and contradictory ranges match nothing', () => {
+  assert.deepEqual(ids({ min: '198000', max: '289000' }), ['a01-strada', 'a02-grand-tourer']);
+  assert.deepEqual(ids({ min: '198000', max: '198000' }), ['a02-grand-tourer']);
+  assert.deepEqual(ids({ min: '289001', max: '198000' }), []);
+});
+
+test('sorting does not mutate caller-owned inventory', () => {
+  const input = [...demoVehicles].reverse();
+  const snapshot = [...input];
+  for (const sort of ['price-asc', 'price-desc', 'mileage']) {
+    const result = filterVehicles(input, { sort });
+    assert.deepEqual(input, snapshot, `sort=${sort}`);
+    assert.notStrictEqual(result, input, `sort=${sort}`);
+  }
+});
