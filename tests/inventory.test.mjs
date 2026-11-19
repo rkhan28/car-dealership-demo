@@ -75,3 +75,14 @@ test('sorting does not mutate caller-owned inventory', () => {
     assert.notStrictEqual(result, input, `sort=${sort}`);
   }
 });
+
+test('zero numeric limits and mixed invalid parameters behave predictably', () => {
+  assert.deepEqual(ids({ max: '0' }), []);
+  assert.deepEqual(ids({ mileage: '0' }), []);
+  assert.deepEqual(ids({ min: '0', max: '198000' }), ['a02-grand-tourer', 'a03-spider']);
+  assert.deepEqual(ids({ min: 'invalid', max: '198000' }), ['a02-grand-tourer', 'a03-spider']);
+});
+
+test('unknown sort values fall back to newest-first ordering', () => {
+  assert.deepEqual(ids({ sort: 'not-a-sort' }), ['a01-strada', 'a02-grand-tourer', 'a03-spider']);
+});
